@@ -1,8 +1,8 @@
 <template lang="pug">
   v-container(background-color="#962aad")
     v-row
-      v-col.search
-       v-text-field(v-model='currentSearch', color="#ffcc00" :append-icon="marker ? 'mdi mdi-magnify' : ''", v-on:keyup.enter='search()', @click:append='search()', :loader="loader" label='Search', outlined, clearable)
+    v-col.search
+      v-text-field(v-model='currentSearch', color="#ffcc00" :append-icon="marker ? 'mdi mdi-magnify' : ''", v-on:keyup.enter='search()', @click:append='search()', :loader="loader" label='Search', outlined, clearable)
       v-btn-toggle.pt-4(v-model="toggleMultiple" color='#ffcc00' depressed group multiple elevation="2")
         v-btn(value='search' retain-focus-on-click) TITLE
         v-btn(value='searchTags' retain-focus-on-click) TAGS
@@ -11,6 +11,7 @@
         v-chip(v-for="tag in getTags" :key="tag", @click='search(["searchTags"], tag)' ) {{ tag }}
     v-container
       p.font-weight-black Result: {{ results.length }} found
+      v-container favorite {{this.favorite}}
       v-row.li(height='300', justify='center')
         v-col(cols="auto")
           v-card(align='start', max-width='400', v-for='video in results', :key='video.title')
@@ -22,7 +23,7 @@
             v-card-text.text--primary
               div {{video.author}}
             v-card-actions
-              v-btn(color='orange', text) Save
+              v-btn(color='orange', text, @click='addVideoToFavorite(video)') Save
               v-btn(color='orange', text) Play
 
 </template>
@@ -51,7 +52,6 @@ export default {
       let actions = t || this.toggleMultiple
       let searchTerm = s || this.currentSearch
 
-      console.log(actions, searchTerm)
       actions.forEach((action) => {
         this.$store.dispatch(action, searchTerm, t)
           .then(r => {
@@ -77,6 +77,10 @@ export default {
     },
     toggleMarker () {
       this.marker = !this.marker
+    },
+    addVideoToFavorite (video) {
+      console.log('step 1', video)
+      this.$store.dispatch('addVideoToFavorite', video)
     }
   },
   computed: {
@@ -102,6 +106,9 @@ export default {
         })
       })
       return tags
+    },
+    favorite () {
+      return this.state.favorite
     }
   }
 }
